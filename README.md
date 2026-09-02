@@ -22,13 +22,13 @@ This project analyzes a simulated credit bureau dataset to assess loan default r
 ## Dashboard Preview
 
 ### Portfolio Overview
-![Portfolio Overview](assets/portfolio_overview.Png)
+![Portfolio Overview](assets/portfolio_overview.png)
 
 ### Risk & Default Drivers
-![Risk and Default Drivers](assets/risk_default_rate.png)
+![Risk and Default Rate](assets/risk_default_rate.png)
 
 ### Underwriting & Risk Pricing Strategy
-![Underwriting and Risk Pricing Strategy](assets/underwriting_risk_pricing_strategy.Png)
+![Underwriting and Risk Pricing Strategy](assets/underwriting_risk_pricing_strategy.png)
 
 ## Data Model
 
