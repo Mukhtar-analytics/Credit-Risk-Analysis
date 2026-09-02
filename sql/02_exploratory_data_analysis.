@@ -1,0 +1,104 @@
+-- =============================================================================================
+-- EDA step1: Volume Overview
+-- =============================================================================================
+select count(*) as the_total_of_borrowers
+ from credit_risk2;
+ 
+ 
+ select count(*) as total_of_borrowers,
+ sum(case when loan_status = 1 then 1 else 0 end ) as Total_Defaulters,
+ concat(round(sum(case when loan_status = 1 then 1 else 0 end) / count(*) * 100,2), "%") as persent_of_total_defaulters,
+ sum(case when loan_status = 0 then 1 else 0 end) as Non_Defaulters,
+ concat(round(sum(case when loan_status = 0 then 1 else 0 end) / count(*) * 100,2), "%") as persent_of_non_defaulters
+ from credit_risk2;
+ 
+ -- ==================================================================================
+ -- Interest_Analysis
+ -- Average Interest Rate Overall
+ 
+ SELECT concat(round(AVG(loan_int_rate),2),"%") AS OVERALL_INT_RATE
+ FROM credit_risk2;
+
+ -- what is the difference between the average interest rate for defaulters and non-defaulters
+ 
+ SELECT LOAN_STATUS, 
+ concat(round(avg(loan_int_rate),2),"%") AS loan_int_rate1
+ FROM credit_risk2
+ group by loan_status
+;
+
+-- what is the average of each loan grade?
+
+ select loan_grade,
+concat(round(avg(loan_int_rate),2),"%") as loan_int_rate_G
+ from credit_risk2
+ group by loan_grade
+ order by 2 desc;
+ 
+ -- what is the average of each loan intent?
+ select loan_intent, concat(round(avg(loan_int_rate),2),"%") as loan_intent_rate
+ from credit_risk2
+ group by loan_intent
+ order by 2 desc;
+ 
+ select loan_intent,
+ sum(case when loan_status = 1 then 1 else 0 end ) as Total_Defaulters
+ from credit_risk2
+ group by loan_intent;
+ 
+-- ===================================================================================
+-- Risk Behavior 
+-- Is the presence of a previous stumble related to the current hight stumble rate 
+
+SELECT 
+    cb_person_default_on_file AS has_previous_default,
+    COUNT(*) AS total_borrowers,
+    SUM(CASE WHEN loan_status = 1 THEN 1 ELSE 0 END) AS current_defaulters,
+    ROUND(AVG(loan_status) * 100, 2) AS current_default_rate
+FROM CREDIT_RISK2
+GROUP BY cb_person_default_on_file;
+
+
+-- How the default rate changes across loan percent income
+
+select 
+case
+when loan_percent_income  < 0.25 then 'low' 
+when loan_percent_income  < 0.55 then 'medium'
+else 'high' end as percent_categ,
+concat(round(sum(case when loan_status = 1 then 1 else 0 end ) / count(*) * 100,2),"%") as defaulter_rates
+from credit_risk2 
+group by percent_categ
+;
+
+-- -- does the stumble rate vary by age?
+select 
+case when person_age between 19 and 35 then 'young_customer' 
+when person_age between 36 and 55 then 'medium' else 'old_customer' end as age_group,
+concat(round(sum(case when loan_status = 1 then 1 else 0 end) / count(*) *100,2),'%') as defaulter_rate
+from credit_risk2
+group by age_group;
+
+
+-- does the stumble rate vary by loan grade?
+
+select loan_grade,
+concat(round(sum(case when loan_status = 1 then 1 else 0 end ) / count(*) * 100,2),"%") as defaulter_rates
+from credit_risk2
+group by loan_grade
+order by 2 desc;
+
+-- does the stumble rate vary by loan intent?
+
+select loan_intent,
+concat(round(sum(case when loan_status = 1 then 1 else 0 end ) / count(*) * 100,2), "%")as difaulters_rates
+from credit_risk2
+group by loan_intent
+;
+
+
+
+
+
+
+
