@@ -120,8 +120,7 @@ SET t.loan_int_rate = g.avg_rate
 WHERE t.loan_int_rate IS NULL;
 
 -- Verification: high-income values (>1M) found to be realistic, no rows removed
--- Verification: high-income values (>1M) found to be realistic, no rows removed
--- Verification: high-income values (>1M) found to be realistic, no rows removed
+
 select *
 from credit_risk2
 where person_income > 1000000;
