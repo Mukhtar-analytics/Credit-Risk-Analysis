@@ -77,7 +77,7 @@ set person_home_ownership =  concat(upper(left(person_home_ownership,1)),
  
  select
  sum(case when person_home_ownership is null then 1 else 0 end )as person_null,
-sum(case when person_age is null then 1 else 0 end ) as age_null,
+sum(case when person_age is null or " " then 1 else 0 end ) as age_null,
 sum(case when person_income is null then 1 else 0 end ) as inc,
 sum(case when person_emp_length is null then 1 else 0 end ) as len,
 sum(case when loan_intent is null then 1 else 0 end ) as intent,
@@ -90,9 +90,7 @@ sum(case when cb_person_default_on_file is null then 1 else 0 end ) as defau,
 sum(case when cb_person_cred_hist_length is null then 1 else 0 end ) as hist
 from credit_risk2;
 
- 
  -- transforming empty values into null values
- 
  
  update credit_risk2
  set loan_int_rate = null
@@ -101,21 +99,16 @@ from credit_risk2;
 update credit_risk2
 set person_emp_length = null
 where trim(person_emp_length) = '' or person_emp_length is null;
-
--- Remove null values from person employee length column 
-delete
-from credit_risk2 
-where person_emp_length is null;
  
- -- Offset empty values with the average  interest rate of same credit group
+ -- Offset empty values with the average interest rate of same credit group
 
 UPDATE credit_risk2 t
 JOIN (
     SELECT loan_grade, ROUND(AVG(loan_int_rate), 2) AS avg_rate
     FROM credit_risk2
     WHERE loan_int_rate IS NOT NULL
-    GROUP BY loan_grade
-) g ON t.loan_grade = g.loan_grade
+    GROUP BY loan_grade)g 
+    ON t.loan_grade = g.loan_grade
 SET t.loan_int_rate = g.avg_rate
 WHERE t.loan_int_rate IS NULL;
 
@@ -133,26 +126,33 @@ where person_income > 1000000;
  alter table credit_risk2
  modify column person_emp_length int;
  
+  -- Verification: high-income values (>1M) found to be realistic, no rows removed
+  
+select *
+from credit_risk2
+where person_income > 1000000;
+
  
- 
- -- Remove unlogical values
+ -- Remove illogical values
  
  select min(person_age), max(person_age)
  from credit_risk2;
 
--- removing rows with unrealistic age values (>= 100), verified they also 
--- contained the erroneous 6-million income outlier
+-- remove rows with unrealistic age values (>= 100)
+-- these rows also contained the erroneous 6-million income outlier
 delete
 from credit_risk2
 where person_age >= 100 ;
- 
+
  
  select min(person_age), max(person_age), count(*) as total_rows
 from credit_risk2;
 
-SELECT MAX(person_emp_length), MAX(loan_amnt),MAX(loan_int_rate), MAX(loan_percent_income), MAX(cb_person_default_on_file), 
+SELECT MAX(person_emp_length), MAX(loan_amnt),MAX(loan_int_rate), MAX(loan_percent_income),
+ MAX(cb_person_default_on_file), 
 MAX(cb_person_cred_hist_length)
 FROM credit_risk2;
+
 SELECT *
 FROM credit_risk2 
 WHERE person_emp_length > 45;
@@ -164,7 +164,8 @@ WHERE person_emp_length > 45;
  alter table credit_risk2
  drop column row_dup;
 
-
+select count(*)
+from credit_risk2
  
  
  
